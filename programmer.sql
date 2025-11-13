@@ -21,4 +21,7 @@ CREATE TABLE college(
  ,shs_year_grad INTEGER DEFAULT 2000
  ,CONSTRAINT student_no_pk PRIMARY KEY(student_no)
 );
+
+CREATE TABLE sourse{
+  
  
