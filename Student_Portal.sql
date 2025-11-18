@@ -21,13 +21,15 @@ CREATE TABLE STUDENT(
 );
 
 CREATE TABLE STUDENT_ADDRESS(
-  student_id VARCHAR(10)  NOT NULL
+  address_id VARCHAR(10)  NOT NULL
+ ,student_id VARCHAR(10)  NOT NULL
  ,house_no   VARCHAR(300) DEFAULT''
  ,street     VARCHAR(300) DEFAULT''
  ,brgy       VARCHAR(300) DEFAULT''
  ,town       VARCHAR(300) DEFAULT''
  ,city       VARCHAR(300) DEFAULT''
  ,zipcode    INTEGER      DEFAULT 0
+ ,CONSTRAINT address_id_pk PRIMARY KEY(address_id) 
  ,CONSTRAINT student_id_fk FOREIGN KEY(student_id) REFERENCES student(student_id) 
 );
 
@@ -65,4 +67,69 @@ CREATE TABLE PORTAL_USER(
  ,status      VARCHAR(1)    DEFAULT'A'
  ,last_login  DATE          DEFAULT'12-OCT-9999'
  ,CONSTRAINT user_id PRIMARY KEY(user_id)
+);
+
+CREATE TABLE ENROLLMENT(
+  enrollment_id VARCHAR(10)   NOT NULL
+ ,student_id    VARCHAR(10)   NOT NULL
+ ,school_year   VARCHAR(50)   DEFAULT''
+ ,sem           INTEGER       DEFAULT 0
+ ,date_enrolled DATE          DEFAULT'12-OCT-9999'
+ ,status        VARCHAR(100)  DEFAULT'Regular'
+ ,CONSTRAINT enrollment_id_pk PRIMARY KEY(enrollment_id) 
+ ,CONSTRAINT student_id_fk_1 FOREIGN KEY(student_id) REFERENCES student(student_id) 
+);
+
+CREATE TABLE SUBJECT(
+  subject_id     VARCHAR(10)  NOT NULL
+ ,subject_name   VARCHAR(500) DEFAULT''
+ ,units          INTEGER      DEFAULT 0
+ ,CONSTRAINT subject_id_pk PRIMARY KEY(subject_id) 
+);
+
+CREATE TABLE ENROLLED_SUBJECT(
+  enrollment_id VARCHAR(10) NOT NULL
+ ,subject_id     VARCHAR(10) NOT NULL
+ ,status         VARCHAR(50) DEFAULT'In-progress'
+ ,CONSTRAINT enrollment_id_fk FOREIGN KEY (enrollment_id) REFERENCES enrollment(enrollment_id)
+ ,CONSTRAINT subject_id_fk FOREIGN KEY(subject_id) REFERENCES subject(subject_id) 
+);
+
+
+CREATE TABLE GRADES(
+  grade_id    VARCHAR(10)  NOT NULL
+ ,student_id  VARCHAR(10)  NOT NULL
+ ,subject_id  VARCHAR(10)  NOT NULL
+ ,school_year VARCHAR(50)  DEFAULT''
+ ,sem         INTEGER      DEFAULT 0
+ ,grade       NUMBER(5,2)  DEFAULT 0
+ ,remark      VARCHAR(100) DEFAULT''
+ ,CONSTRAINT grade_id_pk PRIMARY KEY(grade_id)
+ ,CONSTRAINT student_id_fk_2 FOREIGN KEY(student_id) REFERENCES student(student_id) 
+ ,CONSTRAINT subject_id_fk_1 FOREIGN KEY(subject_id) REFERENCES subject(subject_id) 
+);
+
+CREATE TABLE PAYMENT(
+  payment_id    VARCHAR(10) 
+ ,student_id    VARCHAR(10) 
+ ,payment_type  VARCHAR(50) DEFAULT''
+ ,amount        NUMBER(5,2) DEFAULT 0
+ ,balance       NUMBER(5,2) DEFAULT 0
+ ,status        VARCHAR(50) DEFAULT''
+ ,due_date      DATE        DEFAULT'12-OCT-9999'
+ ,CONSTRAINT payment_id_pk PRIMARY KEY(payment_id)
+ ,CONSTRAINT student_id_fk_3 FOREIGN KEY(student_id) REFERENCES student(student_id) 
+);
+
+CREATE TABLE MESSAGES(
+  message_id    VARCHAR(10) 
+ ,sender_id     VARCHAR(10) 
+ ,reciever_id   VARCHAR(10)
+ ,subject       VARCHAR(200)  DEFAULT''
+ ,message_body  VARCHAR(1000) DEFAULT''
+ ,status        VARCHAR(50)   DEFAULT''
+ ,created_at    DATE          DEFAULT'12-OCT-9999'
+ ,CONSTRAINT message_id_pk PRIMARY KEY(message_id) 
+ ,CONSTRAINT sender_id_fk FOREIGN KEY(sender_id) REFERENCES PORTAL_USER(user_id)
+ ,CONSTRAINT reciever_id_fk FOREIGN KEY(reciever_id) REFERENCES PORTAL_USER(user_id)
 );
