@@ -258,3 +258,27 @@ CREATE TABLE SCHEDULE(
  ,CONSTRAINT faculty_id_fk_2 FOREIGN KEY(faculty_id) REFERENCES faculty(faculty_id)
  ,CONSTRAINT room_id_fk FOREIGN KEY(room_id) REFERENCES room(room_id)
 );
+
+CREATE TABLE ANNOUNCEMENT(
+  announcement_id VARCHAR(10)   NOT NULL
+ ,posted_by       VARCHAR(10)   NOT NULL
+ ,college_id      VARCHAR(10)   NOT NULL
+ ,date_posted     DATE          DEFAULT SYSDATE
+ ,ann_content     VARCHAR(1000) NOT NULL
+ ,status          VARCHAR(20)   DEFAULT'On-going' 
+ ,deadline        DATE          DEFAULT''
+ ,CONSTRAINT announcement_id_pk PRIMARY KEY(announcement_id) 
+ ,CONSTRAINT posted_by_fk FOREIGN KEY(posted_by) REFERENCES portal_user(user_id)
+ ,CONSTRAINT college_id_fk_2 FOREIGN KEY(college_id) REFERENCES college(college_id)
+);
+
+CREATE TABLE APPROVALS(
+  request_id      VARCHAR(10)   NOT NULL
+ ,user_id         VARCHAR(10)   NOT NULL
+ ,request_type    VARCHAR(100)  NOT NULL
+ ,date_submitted  DATE          DEFAULT SYSDATE
+ ,status          VARCHAR(20)   DEFAULT 'PENDING'
+ ,remarks         VARCHAR(500)  DEFAULT''
+ ,CONSTRAINT request_id_pk PRIMARY KEY(request_id)
+ ,CONSTRAINT user_id_fk_4 FOREIGN KEY(user_id) REFERENCES portal_user(user_id)
+);
