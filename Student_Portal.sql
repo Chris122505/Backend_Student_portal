@@ -262,15 +262,16 @@ CREATE TABLE SCHEDULE(
 CREATE TABLE ANNOUNCEMENT(
   announcement_id VARCHAR(10)   NOT NULL
  ,posted_by       VARCHAR(10)   NOT NULL
- ,college_id      VARCHAR(10)   NOT NULL
+ ,subject_id      VARCHAR(10)   NOT NULL
  ,date_posted     DATE          DEFAULT SYSDATE
  ,ann_content     VARCHAR(1000) NOT NULL
  ,status          VARCHAR(20)   DEFAULT'On-going' 
  ,deadline        DATE          DEFAULT''
  ,CONSTRAINT announcement_id_pk PRIMARY KEY(announcement_id) 
  ,CONSTRAINT posted_by_fk FOREIGN KEY(posted_by) REFERENCES portal_user(user_id)
- ,CONSTRAINT college_id_fk_2 FOREIGN KEY(college_id) REFERENCES college(college_id)
+ ,CONSTRAINT subject_id_fk_3 FOREIGN KEY(subject_id) REFERENCES subject(subject_id)
 );
+
 
 CREATE TABLE APPROVALS(
   request_id      VARCHAR(10)   NOT NULL
@@ -282,3 +283,4 @@ CREATE TABLE APPROVALS(
  ,CONSTRAINT request_id_pk PRIMARY KEY(request_id)
  ,CONSTRAINT user_id_fk_4 FOREIGN KEY(user_id) REFERENCES portal_user(user_id)
 );
+
