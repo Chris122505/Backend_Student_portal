@@ -47,6 +47,7 @@ CREATE TABLE COURSE(
   course_id     VARCHAR(10)   NOT NULL
  ,college_id    VARCHAR(10)   NOT NULL
  ,course_name   VARCHAR(500)  NOT NULL 
+ ,course_code   VARCHAR(20)   DEFAULT''
  ,CONSTRAINT course_id_pk PRIMARY KEY(course_id) 
  ,CONSTRAINT college_id_fk FOREIGN KEY(college_id) REFERENCES COLLEGE(college_id)
 );
@@ -84,6 +85,7 @@ CREATE TABLE SUBJECT(
   subject_id     VARCHAR(10)  NOT NULL
  ,subject_name   VARCHAR(500) DEFAULT''
  ,units          INTEGER      DEFAULT 0
+ ,subject_type VARCHAR(20) DEFAULT''
  ,CONSTRAINT subject_id_pk PRIMARY KEY(subject_id) 
 );
 
@@ -283,4 +285,5 @@ CREATE TABLE APPROVALS(
  ,CONSTRAINT request_id_pk PRIMARY KEY(request_id)
  ,CONSTRAINT user_id_fk_4 FOREIGN KEY(user_id) REFERENCES portal_user(user_id)
 );
+
 
