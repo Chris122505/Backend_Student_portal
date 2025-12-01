@@ -6,47 +6,46 @@
 -- 1. COLLEGE
 ------------------------------------------------------------
 CREATE TABLE college (
-  college_id   VARCHAR(10)    PRIMARY KEY,
-  college_name VARCHAR(100)   NOT NULL,
-  status       VARCHAR(20)    DEFAULT 'ACTIVE'
+  college_id   VARCHAR(10)    NOT NULL
+ ,college_name VARCHAR(100)   NOT NULL
+ ,status       VARCHAR(20)    DEFAULT 'ACTIVE'
+ ,CONSTRAINT college_id_pk PRIMARY KEY(college_id) 
 );
-
 ------------------------------------------------------------
 -- 2. COURSE
 ------------------------------------------------------------
 CREATE TABLE course (
-  course_id   VARCHAR(10)    PRIMARY KEY,
-  college_id  VARCHAR(10)    NOT NULL,
-  course_name VARCHAR(100)   NOT NULL,
-  status      VARCHAR(20)    DEFAULT 'ACTIVE',
-  CONSTRAINT fk_course_college
-    FOREIGN KEY (college_id)
-    REFERENCES college(college_id)
+  course_id   VARCHAR(10)    NOT NULL
+ ,college_id  VARCHAR(10)    NOT NULL
+ ,course_name VARCHAR(100)   NOT NULL
+ ,status      VARCHAR(20)    DEFAULT 'ACTIVE'
+ ,CONSTRAINT course_id_pk PRIMARY KEY(course_id) 
+ ,CONSTRAINT college_id_fk FOREIGN KEY (college_id) REFERENCES college(college_id)
 );
 
 ------------------------------------------------------------
 -- 3. CURRICULUM
 ------------------------------------------------------------
 CREATE TABLE curriculum (
-  curriculum_id VARCHAR(30)   PRIMARY KEY,
-  course_id     VARCHAR(10)   NOT NULL,
-  date_started  DATE          NOT NULL,
-  status        VARCHAR(20)   DEFAULT 'ACTIVE',
-  CONSTRAINT fk_curriculum_course
-    FOREIGN KEY (course_id)
-    REFERENCES course(course_id)
+  curriculum_id VARCHAR(30)   NOT NULL
+ ,course_id     VARCHAR(10)   NOT NULL
+ ,date_started  DATE          NOT NULL
+ ,status        VARCHAR(20)   DEFAULT 'ACTIVE'
+ ,CONSTRAINT curriculum_id_pk PRIMARY KEY(curriculum_id)
+ ,CONSTRAINT course_id_fk FOREIGN KEY (course_id) REFERENCES course(course_id)
 );
 
 ------------------------------------------------------------
 -- 4. TERM (AY + MIDTERM/FINALS)
 ------------------------------------------------------------
 CREATE TABLE term (
-  term_id   VARCHAR(30)  PRIMARY KEY,
-  sy_start  NUMBER(4)    NOT NULL,   -- e.g. 2025
-  sy_end    NUMBER(4)    NOT NULL,   -- e.g. 2026
-  sem       VARCHAR(10)  NOT NULL,   -- 'MIDTERM' or 'FINALS'
-  label     VARCHAR(50)  NOT NULL,   -- e.g. '2025-2026 FINALS'
-  status    VARCHAR(20)  DEFAULT 'ACTIVE'
+  term_id   VARCHAR(30)  NOT NULL
+ ,sy_start  NUMBER(4)    NOT NULL   -- e.g. 2025
+ ,sy_end    NUMBER(4)    NOT NULL   -- e.g. 2026
+ ,sem       VARCHAR(10)  NOT NULL   -- 'MIDTERM' or 'FINALS'
+ ,label     VARCHAR(50)  NOT NULL   -- e.g. '2025-2026 FINALS'
+ ,status    VARCHAR(20)  DEFAULT 'ACTIVE'
+ ,CONSTRAINT term_id_pk PRIMARY KEY(term_id)
 );
 
 -- Only allow MIDTERM and FINALS
@@ -58,281 +57,249 @@ ALTER TABLE term
 -- 5. BLOCK (section, e.g. BSCS 2-2)
 ------------------------------------------------------------
 CREATE TABLE block (
-  block_id    VARCHAR(30)  PRIMARY KEY,
-  block_code  VARCHAR(20)  NOT NULL, -- 'BSCS 2-1'
-  course_id   VARCHAR(10)  NOT NULL,
-  year_level  NUMBER(1)    NOT NULL,
-  status      VARCHAR(20)  DEFAULT 'ACTIVE',
-  CONSTRAINT fk_block_course
-    FOREIGN KEY (course_id)
-    REFERENCES course(course_id)
+   block_id    VARCHAR(30) NOT NULL
+  ,block_code  VARCHAR(20) NOT NULL
+  ,course_id   VARCHAR(10) NOT NULL
+  ,year_level  INTEGER     DEFAULT 0
+  ,status      VARCHAR(20) DEFAULT 'ACTIVE'
+  ,CONSTRAINT block_id_pk PRIMARY KEY(block_id)
+  ,CONSTRAINT block_course_fk FOREIGN KEY(course_id) REFERENCES course(course_id) 
 );
 
 ------------------------------------------------------------
 -- 6. BUILDING
 ------------------------------------------------------------
 CREATE TABLE building (
-  building_id   VARCHAR(20)  PRIMARY KEY,
-  building_name VARCHAR(100) NOT NULL,
-  status        VARCHAR(20)  DEFAULT 'ACTIVE'
+  building_id   VARCHAR(20)  NOT NULL
+ ,building_name VARCHAR(100) NOT NULL
+ ,status        VARCHAR(20)  DEFAULT 'ACTIVE'
+ ,CONSTRAINT building_id_pk PRIMARY KEY(building_id)
 );
+
 
 ------------------------------------------------------------
 -- 7. ROOM
 ------------------------------------------------------------
-CREATE TABLE room (
-  room_id     VARCHAR(30)  PRIMARY KEY,
-  building_id VARCHAR(20)  NOT NULL,
-  room_code   VARCHAR(20)  NOT NULL,  -- e.g. '201', 'MSTEAMS'
-  room_name   VARCHAR(50),
-  room_type   VARCHAR(20),            -- 'LECTURE','LAB','ONLINE',etc.
-  capacity    NUMBER(4),
-  status      VARCHAR(20)  DEFAULT 'ACTIVE',
-  CONSTRAINT fk_room_building
-    FOREIGN KEY (building_id)
-    REFERENCES building(building_id)
+CREATE TABLE room(
+  room_id     VARCHAR(30) NOT NULL
+ ,building_id VARCHAR(20) NOT NULL
+ ,room_code   VARCHAR(20) NOT NULL
+ ,room_name   VARCHAR(50) DEFAULT''
+ ,room_type   VARCHAR(20) DEFAULT''
+ ,capacity    INTEGER     DEFAULT 0
+ ,status      VARCHAR(20)  DEFAULT 'ACTIVE'
+ ,CONSTRAINT room_id_pk PRIMARY KEY(room_id)
+ ,CONSTRAINT room_building_fk FOREIGN KEY (building_id) REFERENCES building(building_id)
 );
 
 ------------------------------------------------------------
 -- 8. APP_USER (login accounts)
 ------------------------------------------------------------
 CREATE TABLE app_user (
-  user_id        VARCHAR(30)   PRIMARY KEY,
-  username       VARCHAR(50)   UNIQUE NOT NULL,
-  password_hash  VARCHAR(255)  NOT NULL,
-  user_type      VARCHAR(20)   NOT NULL,  -- 'STUDENT','FACULTY','ADMIN'
-  status         VARCHAR(20)   DEFAULT 'ACTIVE',
-  created_at     DATE          DEFAULT SYSDATE
+  user_id        VARCHAR(30)  NOT NULL
+ ,username       VARCHAR(50)  UNIQUE NOT NULL
+ ,password_hash  VARCHAR(255) NOT NULL
+ ,user_type      VARCHAR(20)  NOT NULL  -- 'STUDENT','FACULTY','ADMIN'
+ ,status         VARCHAR(20)  DEFAULT 'ACTIVE'
+ ,created_at     DATE         DEFAULT SYSDATE
+ ,CONSTRAINT user_id_pk PRIMARY KEY(user_id)
 );
 
 ------------------------------------------------------------
 -- 9. STUDENT
 ------------------------------------------------------------
 CREATE TABLE student (
-  student_id  VARCHAR(15)  PRIMARY KEY,  -- e.g. 202410214
-  user_id     VARCHAR(30)  UNIQUE,
-  course_id   VARCHAR(10)  NOT NULL,
-  block_id    VARCHAR(30),
-  last_name   VARCHAR(50)  NOT NULL,
-  first_name  VARCHAR(50)  NOT NULL,
-  middle_name VARCHAR(50),
-  gender      VARCHAR(10),
-  birthday    DATE,
-  nationality VARCHAR(50),
-  blood_type  VARCHAR(5),
-  address     VARCHAR(255),
-  email       VARCHAR(100),
-  year_level  NUMBER(1),
-  status      VARCHAR(20),
-  contact_no  VARCHAR(30),
-  CONSTRAINT fk_student_user
-    FOREIGN KEY (user_id)
-    REFERENCES app_user(user_id),
-  CONSTRAINT fk_student_course
-    FOREIGN KEY (course_id)
-    REFERENCES course(course_id),
-  CONSTRAINT fk_student_block
-    FOREIGN KEY (block_id)
-    REFERENCES block(block_id)
+  student_id      VARCHAR(15) NOT NULL
+ ,user_id         VARCHAR(30) UNIQUE NOT NULL
+ ,course_id       VARCHAR(10) NOT NULL
+ ,block_id        VARCHAR(30) NOT NULL
+ ,last_name       VARCHAR(50) NOT NULL
+ ,first_name      VARCHAR(50) NOT NULL
+ ,middle_name     VARCHAR(50) NOT NULL
+ ,middle_initial  VARCHAR(2)  DEFAULT''
+ ,gender          VARCHAR(10) DEFAULT''
+ ,birthday        DATE        DEFAULT''
+ ,nationality     VARCHAR(50) DEFAULT''
+ ,blood_type      VARCHAR(5)  DEFAULT''
+ ,address         VARCHAR(255)DEFAULT''
+ ,email           VARCHAR(100)DEFAULT''
+ ,year_level      INTEGER     DEFAULT 0
+ ,status          VARCHAR(20) DEFAULT'ACTIVE'
+ ,contact_no      VARCHAR(30) DEFAULT''
+ ,CONSTRAINT student_id_pk PRIMARY KEY(student_id)
+ ,CONSTRAINT student_user_fk FOREIGN KEY(user_id) REFERENCES app_user(user_id)
+ ,CONSTRAINT student_course_fk FOREIGN KEY(course_id) REFERENCES course(course_id)
+ ,CONSTRAINT student_block_fk FOREIGN KEY(block_id) REFERENCES block(block_id)
 );
 
 ------------------------------------------------------------
 -- 10. FACULTY
 ------------------------------------------------------------
 CREATE TABLE faculty (
-  faculty_id   VARCHAR(30)  PRIMARY KEY,
-  user_id      VARCHAR(30)  UNIQUE,
-  last_name    VARCHAR(50)  NOT NULL,
-  first_name   VARCHAR(50)  NOT NULL,
-  middle_name  VARCHAR(50),
-  gender       VARCHAR(10),
-  birthday     DATE,
-  nationality  VARCHAR(50),
-  address      VARCHAR(255),
-  email        VARCHAR(100),
-  status       VARCHAR(20),
-  contact_no   VARCHAR(30),
-  civil_status VARCHAR(20),
-  CONSTRAINT fk_faculty_user
-    FOREIGN KEY (user_id)
-    REFERENCES app_user(user_id)
+  faculty_id      VARCHAR(30) NOT NULL
+ ,user_id         VARCHAR(30) UNIQUE NOT NULL
+ ,last_name       VARCHAR(50) NOT NULL
+ ,first_name      VARCHAR(50) NOT NULL
+ ,middle_name     VARCHAR(50) NOT NULL
+ ,middle_initial  VARCHAR(2)  DEFAULT''
+ ,gender          VARCHAR(10) DEFAULT''
+ ,birthday        DATE        DEFAULT''
+ ,nationality     VARCHAR(50) DEFAULT''
+ ,address         VARCHAR(255)DEFAULT''
+ ,email           VARCHAR(100)DEFAULT''
+ ,status          VARCHAR(20) DEFAULT''
+ ,contact_no      VARCHAR(30) DEFAULT''
+ ,civil_status    VARCHAR(20) DEFAULT''
+ ,CONSTRAINT faculty_id_pk PRIMARY KEY(faculty_id)
+ ,CONSTRAINT faculty_user_fk FOREIGN KEY(user_id) REFERENCES app_user(user_id)
 );
 
 ------------------------------------------------------------
 -- 11. ADMIN_USER (admin accounts & profile)
 ------------------------------------------------------------
 CREATE TABLE admin_user (
-  admin_id     VARCHAR(30)  PRIMARY KEY,
-  user_id      VARCHAR(30)  UNIQUE,
-  last_name    VARCHAR(50)  NOT NULL,
-  first_name   VARCHAR(50)  NOT NULL,
-  middle_name  VARCHAR(50),
-  gender       VARCHAR(10),
-  birthday     DATE,
-  nationality  VARCHAR(50),
-  address      VARCHAR(255),
-  email        VARCHAR(100),
-  status       VARCHAR(20),
-  contact_no   VARCHAR(30),
-  civil_status VARCHAR(20),
-  CONSTRAINT fk_admin_user
-    FOREIGN KEY (user_id)
-    REFERENCES app_user(user_id)
+  admin_id      VARCHAR(30) NOT NULL
+ ,user_id         VARCHAR(30) UNIQUE NOT NULL
+ ,last_name       VARCHAR(50) NOT NULL
+ ,first_name      VARCHAR(50) NOT NULL
+ ,middle_name     VARCHAR(50) NOT NULL
+ ,middle_initial  VARCHAR(2)  DEFAULT''
+ ,gender          VARCHAR(10) DEFAULT''
+ ,birthday        DATE        DEFAULT''
+ ,nationality     VARCHAR(50) DEFAULT''
+ ,address         VARCHAR(255)DEFAULT''
+ ,email           VARCHAR(100)DEFAULT''
+ ,status          VARCHAR(20) DEFAULT''
+ ,contact_no      VARCHAR(30) DEFAULT''
+ ,civil_status    VARCHAR(20) DEFAULT''
+ ,CONSTRAINT admin_id_pk PRIMARY KEY(admin_id)
+ ,CONSTRAINT admin_user_fk FOREIGN KEY(user_id) REFERENCES app_user(user_id)
 );
+ 
 
 ------------------------------------------------------------
 -- 12. LOGIN_LOG
 ------------------------------------------------------------
 CREATE TABLE login_log (
-  log_id         VARCHAR(30)  PRIMARY KEY,
-  user_id        VARCHAR(30)  NOT NULL,
-  login_datetime DATE         DEFAULT SYSDATE,
-  ip_address     VARCHAR(50),
-  user_device    VARCHAR(100),
-  CONSTRAINT fk_loginlog_user
-    FOREIGN KEY (user_id)
-    REFERENCES app_user(user_id)
+  log_id         VARCHAR(30)  NOT NULL
+ ,user_id        VARCHAR(30)  NOT NULL
+ ,login_datetime DATE         DEFAULT SYSDATE
+ ,ip_address     VARCHAR(50)  DEFAULT''
+ ,user_device    VARCHAR(100) DEFAULT''
+ ,CONSTRAINT log_id_pk PRIMARY KEY(log_id)
+ ,CONSTRAINT loginlog_user_fk FOREIGN KEY (user_id) REFERENCES app_user(user_id)
 );
-
 ------------------------------------------------------------
 -- 13. SUBJECT
 ------------------------------------------------------------
 CREATE TABLE subject (
-  subject_id   VARCHAR(30)  PRIMARY KEY,
-  subject_code VARCHAR(20)  UNIQUE NOT NULL, -- 'CSC 0212'
-  subject_name VARCHAR(100) NOT NULL,
-  units        NUMBER(2,1)  NOT NULL,
-  course_year  NUMBER(1),
-  sem          VARCHAR(10), -- curricular sem (1/2/etc) if you want
-  lec_lab      VARCHAR(10)  -- 'LECTURE','LAB','BOTH'
+  subject_id   VARCHAR(30)  NOT NULL
+ ,subject_code VARCHAR(20)  UNIQUE NOT NULL -- 'CSC 0212'
+ ,subject_name VARCHAR(100) NOT NULL
+ ,units        NUMBER(2,1)  NOT NULL
+ ,course_year  INTEGER      DEFAULT 0
+ ,sem          VARCHAR(10)  DEFAULT''-- curricular sem (1/2/etc) if you want
+ ,lec_lab      VARCHAR(10)  DEFAULT''-- 'LECTURE','LAB','BOTH'
+ ,CONSTRAINT subject_id_pk PRIMARY KEY(subject_id)
 );
-
 ------------------------------------------------------------
 -- 14. CURRICULUM_SUBJECT (subjects in a curriculum)
 ------------------------------------------------------------
+
 CREATE TABLE curriculum_subject (
-  curriculum_subject_id VARCHAR(30)  PRIMARY KEY,
-  curriculum_id         VARCHAR(30)  NOT NULL,
-  subject_id            VARCHAR(30)  NOT NULL,
-  year_level            NUMBER(1),
-  semester              VARCHAR(10),
-  type                  VARCHAR(10),  -- 'MAJOR'/'MINOR'
-  CONSTRAINT fk_currsub_curr
-    FOREIGN KEY (curriculum_id)
-    REFERENCES curriculum(curriculum_id),
-  CONSTRAINT fk_currsub_sub
-    FOREIGN KEY (subject_id)
-    REFERENCES subject(subject_id)
+  curriculum_subject_id VARCHAR(30) NOT NULL
+ ,curriculum_id         VARCHAR(30) NOT NULL
+ ,subject_id            VARCHAR(30) NOT NULL
+ ,year_level            INTEGER     DEFAULT 0
+ ,semester              VARCHAR(10) DEFAULT''
+ ,type                  VARCHAR(10) DEFAULT''
+ ,CONSTRAINT curriculum_subject_pk PRIMARY KEY(curriculum_subject_id)
+ ,CONSTRAINT currsub_curr_fk FOREIGN KEY(curriculum_id) REFERENCES curriculum(curriculum_id)
+ ,CONSTRAINT currsub_sub_fk FOREIGN KEY(subject_id) REFERENCES subject(subject_id) 
 );
 
 ------------------------------------------------------------
 -- 15. SUBJECT_PREREQUISITE (self-join)
 ------------------------------------------------------------
 CREATE TABLE subject_prerequisite (
-  subject_id        VARCHAR(30) NOT NULL,
-  prereq_subject_id VARCHAR(30) NOT NULL,
-  CONSTRAINT pk_subject_prereq
-    PRIMARY KEY (subject_id, prereq_subject_id),
-  CONSTRAINT fk_prereq_subject
-    FOREIGN KEY (subject_id)
-    REFERENCES subject(subject_id),
-  CONSTRAINT fk_prereq_subject_req
-    FOREIGN KEY (prereq_subject_id)
-    REFERENCES subject(subject_id)
+   subject_id        VARCHAR(30) NOT NULL
+  ,prereq_subject_id VARCHAR(30) NOT NULL
+  ,CONSTRAINT subject_prereq PRIMARY KEY(subject_id, prereq_subject_id) 
+  ,CONSTRAINT prereq_subject_fk FOREIGN KEY (subject_id) REFERENCES subject(subject_id) 
+  ,CONSTRAINT prereq_subject_req_fk FOREIGN KEY(prereq_subject_id) REFERENCES subject(subject_id)
 );
-
 ------------------------------------------------------------
 -- 16. SCHEDULE (class offering for a block in a term)
 --     NOW USING room_id (FK ? room)
 ------------------------------------------------------------
 CREATE TABLE schedule (
-  schedule_id VARCHAR(30)  PRIMARY KEY,
-  subject_id  VARCHAR(30)  NOT NULL,
-  block_id    VARCHAR(30)  NOT NULL,
-  faculty_id  VARCHAR(30),
-  term_id     VARCHAR(30)  NOT NULL,
-  day_of_week VARCHAR(5)   NOT NULL,  -- 'M','T','W','TH','F','S'
-  time_start  VARCHAR(10)  NOT NULL,  -- '18:00'
-  time_end    VARCHAR(10)  NOT NULL,  -- '20:00'
-  room_id     VARCHAR(30),
-  CONSTRAINT fk_sched_subject
-    FOREIGN KEY (subject_id)
-    REFERENCES subject(subject_id),
-  CONSTRAINT fk_sched_block
-    FOREIGN KEY (block_id)
-    REFERENCES block(block_id),
-  CONSTRAINT fk_sched_faculty
-    FOREIGN KEY (faculty_id)
-    REFERENCES faculty(faculty_id),
-  CONSTRAINT fk_sched_term
-    FOREIGN KEY (term_id)
-    REFERENCES term(term_id),
-  CONSTRAINT fk_sched_room
-    FOREIGN KEY (room_id)
-    REFERENCES room(room_id)
+  schedule_id VARCHAR(30) NOT NULL
+ ,subject_id  VARCHAR(30) NOT NULL
+ ,block_id    VARCHAR(30) NOT NULL
+ ,faculty_id  VARCHAR(30) NOT NULL
+ ,term_id     VARCHAR(30) NOT NULL
+ ,day_of_week VARCHAR(5)  NOT NULL
+ ,time_start  VARCHAR(10) NOT NULL
+ ,time_end    VARCHAR(10) NOT NULL
+ ,room_id     VARCHAR(30) NOT NULL
+ ,CONSTRAINT schedule_id_pk PRIMARY KEY (schedule_id) 
+ ,CONSTRAINT sched_subject_fk FOREIGN KEY(subject_id) REFERENCES subject(subject_id)
+ ,CONSTRAINT sched_block_fk FOREIGN KEY(block_id) REFERENCES block(block_id)
+ ,CONSTRAINT sched_faculty_fk FOREIGN KEY(faculty_id) REFERENCES faculty(faculty_id)
+ ,CONSTRAINT sched_term_fk FOREIGN KEY(term_id) REFERENCES term(term_id)
+ ,CONSTRAINT sched_room_fk FOREIGN KEY(room_id) REFERENCES room(room_id)
 );
 
 ------------------------------------------------------------
 -- 17. ENROLLMENT (one record per student per term)
 ------------------------------------------------------------
 CREATE TABLE enrollment (
-  enrollment_id       VARCHAR(30)  PRIMARY KEY,
-  student_id          VARCHAR(15)  NOT NULL,
-  term_id             VARCHAR(30)  NOT NULL,
-  date_enrolled       DATE         DEFAULT SYSDATE,
-  status              VARCHAR(20),     -- 'REGULAR','IRREGULAR',etc.
-  control_no          VARCHAR(20),
-  registration_status VARCHAR(20),
-  copy_type           VARCHAR(20),
-  total_units         NUMBER(3),
-  remarks             VARCHAR(255),
-  reference_no        VARCHAR(50),
-  encoder_id          VARCHAR(30),
-  encode_date         DATE,
-  CONSTRAINT fk_enrollment_student
-    FOREIGN KEY (student_id)
-    REFERENCES student(student_id),
-  CONSTRAINT fk_enrollment_term
-    FOREIGN KEY (term_id)
-    REFERENCES term(term_id),
-  CONSTRAINT fk_enrollment_encoder
-    FOREIGN KEY (encoder_id)
-    REFERENCES admin_user(admin_id)
+  enrollment_id       VARCHAR(30) NOT NULL
+ ,student_id          VARCHAR(15) NOT NULL
+ ,term_id             VARCHAR(30) NOT NULL
+ , date_enrolled       DATE       DEFAULT SYSDATE
+ ,status              VARCHAR(20) DEFAULT''
+ ,control_no          VARCHAR(20) DEFAULT''
+ ,registration_status VARCHAR(20) DEFAULT''
+ ,copy_type           VARCHAR(20) DEFAULT''
+ ,total_units         INTEGER     DEFAULT 0
+ ,remarks             VARCHAR(255)DEFAULT''
+ ,reference_no        VARCHAR(50) DEFAULT''
+ ,encoder_id          VARCHAR(30) DEFAULT''
+ ,encode_date         DATE        DEFAULT''
+ ,CONSTRAINT enrollment_id_pk PRIMARY KEY(enrollment_id)
+ ,CONSTRAINT enrollment_student_fk FOREIGN KEY(student_id) REFERENCES student(student_id)
+ ,CONSTRAINT enrolment_term_fk FOREIGN KEY(term_id) REFERENCES term(term_id)
+ ,CONSTRAINT enrollment_encoder_fk FOREIGN KEY(encoder_id) REFERENCES admin_user(admin_id) 
 );
 
 ------------------------------------------------------------
 -- 18. ENROLLMENT_SUBJECT (lines of the COR)
 ------------------------------------------------------------
 CREATE TABLE enrollment_subject (
-  enrollment_subject_id VARCHAR(30)  PRIMARY KEY,
-  enrollment_id         VARCHAR(30)  NOT NULL,
-  schedule_id           VARCHAR(30)  NOT NULL,
-  curriculum_subject_id VARCHAR(30),
-  CONSTRAINT fk_enrsub_enrollment
-    FOREIGN KEY (enrollment_id)
-    REFERENCES enrollment(enrollment_id),
-  CONSTRAINT fk_enrsub_schedule
-    FOREIGN KEY (schedule_id)
-    REFERENCES schedule(schedule_id),
-  CONSTRAINT fk_enrsub_currsub
-    FOREIGN KEY (curriculum_subject_id)
-    REFERENCES curriculum_subject(curriculum_subject_id)
+  enrollment_subject_id VARCHAR(30) NOT NULL
+ ,enrollment_id         VARCHAR(30) NOT NULL
+ ,schedule_id           VARCHAR(30) NOT NULL
+ ,curriculum_subject_id VARCHAR(30) NOT NULL
+ ,CONSTRAINT enrollment_subject_id_pk PRIMARY KEY(enrollment_subject_id)
+ ,CONSTRAINT enrsub_enrollment_fk FOREIGN KEY(enrollment_id) REFERENCES enrollment(enrollment_id)
+ ,CONSTRAINT enrsub_schedule_fk FOREIGN KEY(schedule_id) REFERENCES schedule(schedule_id)
+ ,CONSTRAINT enrsub_currsub_fk FOREIGN KEY(curriculum_subject_id) REFERENCES curriculum_subject(curriculum_subject_id)
 );
+
 
 ------------------------------------------------------------
 -- 19. GRADE
 ------------------------------------------------------------
 CREATE TABLE grade (
-  grade_id              VARCHAR(30)  PRIMARY KEY,
-  enrollment_subject_id VARCHAR(30)  NOT NULL,
-  final_grade           NUMBER(5,2),
-  remark                VARCHAR(20), -- 'PASSED','FAILED','INC',etc.
-  grade_date            DATE,
-  CONSTRAINT fk_grade_enrsub
-    FOREIGN KEY (enrollment_subject_id)
-    REFERENCES enrollment_subject(enrollment_subject_id)
+    grade_id              VARCHAR(30)   NOT NULL
+   ,enrollment_subject_id VARCHAR(30)   NOT NULL
+   ,final_grade           NUMBER(5,2)   DEFAULT 0.0
+   ,remark                VARCHAR(20)   DEFAULT''
+   ,grade_date            DATE          DEFAULT''
+   ,CONSTRAINT grade_id_pk PRIMARY KEY(grade_id) 
+   ,CONSTRAINT grade_enrsub_fk FOREIGN KEY(enrollment_subject_id) REFERENCES enrollment_subject(enrollment_subject_id)
 );
-
 ------------------------------------------------------------
 -- CONSTRAINTS (DATA QUALITY, REALISTIC PORTAL BEHAVIOR)
 ------------------------------------------------------------
@@ -915,3 +882,4 @@ SELECT * FROM vw_student_dashboard
 ORDER BY student_id, term_id;
 
 COMMIT;
+
