@@ -157,9 +157,24 @@ CREATE TABLE faculty (
 ------------------------------------------------------------
 -- 11. ADMIN_USER (admin accounts & profile)
 ------------------------------------------------------------
+
+CREATE TABLE department(
+  department_id   VARCHAR(20)   NOT NULL
+ ,department_code  VARCHAR(500)  DEFAULT''
+ ,department_desc VARCHAR(500)  DEFAULT''
+ ,status          VARCHAR(20)   DEFAULT 'ACTIVE'
+ ,CONSTRAINT department_id_pk PRIMARY KEY(department_id) 
+
+  ,CONSTRAINT chk_department_status
+    CHECK (status IN ('ACTIVE', 'INACTIVE'))
+ ,CONSTRAINT uq_department_code UNIQUE (department_code)
+);
+
+
 CREATE TABLE admin_user (
   admin_id      VARCHAR(30) NOT NULL
  ,user_id         VARCHAR(30) UNIQUE NOT NULL
+ ,department_id   VARCHAR(20) NOT NULL
  ,last_name       VARCHAR(50) NOT NULL
  ,first_name      VARCHAR(50) NOT NULL
  ,middle_name     VARCHAR(50) NOT NULL
@@ -174,8 +189,9 @@ CREATE TABLE admin_user (
  ,civil_status    VARCHAR(20) DEFAULT''
  ,CONSTRAINT admin_id_pk PRIMARY KEY(admin_id)
  ,CONSTRAINT admin_user_fk FOREIGN KEY(user_id) REFERENCES app_user(user_id)
+ ,CONSTRAINT admin_department_fk FOREIGN KEY(department_id) REFERENCES department(department_id) 
 );
- 
+
 
 ------------------------------------------------------------
 -- 12. LOGIN_LOG
@@ -882,4 +898,5 @@ SELECT * FROM vw_student_dashboard
 ORDER BY student_id, term_id;
 
 COMMIT;
+
 
